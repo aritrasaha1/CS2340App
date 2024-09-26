@@ -1,2 +1,1 @@
-Link to the design for our website, let me know if it doesn't work - Vanshika 
-https://www.figma.com/design/lb2uzVgsL5dV1yZCOYaLvJ/CS2340group9?node-id=0-1&t=2sEDTheu9z1rkhpI-1
+Atlanta Food Finder is a web application that allows users to search for and discoverrestaurants in Atlanta. Users can view restaurant locations on a map, read reviews, and get directions. The application will feature a user-friendly interface and provide useful information about each restaurant, such as address, cuisine type, ratings, and opening hours.
