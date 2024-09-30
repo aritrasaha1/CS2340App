@@ -2,6 +2,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.urls import reverse
+from django.core.exceptions import ValidationError
 
 class Restaurant(models.Model):
     name = models.CharField(max_length=255)
@@ -18,6 +19,19 @@ class Restaurant(models.Model):
     def get_absolute_url(self):
         return reverse('restaurant_detail', args=[self.place_id])
 
+    def clean(self):
+        # Ensure the latitude and longitude are within valid ranges
+        if not (-90 <= self.latitude <= 90):
+            raise ValidationError({'latitude': 'Latitude must be between -90 and 90.'})
+        if not (-180 <= self.longitude <= 180):
+            raise ValidationError({'longitude': 'Longitude must be between -180 and 180.'})
+    
+    def save(self, *args, **kwargs):
+        # Additional validation checks before saving
+        self.clean()  # Ensures that the clean method is called
+        super(Restaurant, self).save(*args, **kwargs)
+
+
 class Favorite(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='favorites')
     place_id = models.CharField(max_length=100)
@@ -32,6 +46,17 @@ class Favorite(models.Model):
     def __str__(self):
         return f"{self.name} ({self.user.username})"
 
+    def clean(self):
+        # Ensure rating is within valid bounds if provided
+        if self.rating and not (0 <= self.rating <= 5):
+            raise ValidationError({'rating': 'Rating must be between 0 and 5.'})
+
+    def save(self, *args, **kwargs):
+        # Call clean method before saving to validate data
+        self.clean()
+        super(Favorite, self).save(*args, **kwargs)
+
+
 class Review(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reviews')
     restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE, related_name='reviews')
@@ -43,4 +68,4 @@ class Review(models.Model):
         ordering = ['-created_at']  # Newest reviews first
 
     def __str__(self):
-        return f"Review by {self.user.username} for {self.restaurant.name}"
+        return f"Review by {self
